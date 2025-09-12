@@ -23,7 +23,9 @@ export default function NavbarCustomer() {
                 <div className="flex items-center gap-2">
                     <Bell />
                     <Settings />
+                    <Link href="/customer/profile">
                     <Image src="/globe.svg" alt="Avatar" width={30} height={30} className="rounded-full" />
+                    </Link>
                 </div>
             </div>
             <div>
