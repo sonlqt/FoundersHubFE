@@ -1,22 +1,25 @@
-import Advertisements from '@/app/customer/home/components/Advertisements'
-import FilterSearch from '@/app/customer/home/components/FilterSearch'
-import HeroSection from '@/app/customer/home/components/HeroSection'
-import ProjectList from '@/app/customer/home/components/ProjectList'
-import React from 'react'
+"use client";
 
-export default function Homepage() {
-    return (
-        <div>
-            <HeroSection />
-            <FilterSearch />
-            <div className="grid grid-cols-6 px-10  gap-10">
-               <div className="col col-span-4">
-                 <ProjectList />
-               </div>
-               <div className=" col col-span-2 flex items-center">
-                <Advertisements/>
-               </div>
-            </div>
-        </div>
-    )
+import SuccessDialog from "@/app/components/SuccessMessage";
+import { useState } from "react";
+
+export default function DemoPage() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex flex-col items-center gap-4 mt-10">
+      <button
+        onClick={() => setOpen(true)}
+        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        Mời thành viên
+      </button>
+
+      <SuccessDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        message="Invite successfully!"
+      />
+    </div>
+  );
 }
