@@ -1,7 +1,5 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Bell } from 'lucide-react';
-import { Settings } from 'lucide-react';
 import React from 'react'
 
 export default function FooterCustomer() {
@@ -22,7 +20,7 @@ export default function FooterCustomer() {
                     Foundershub.se@gmail.com
                 </p>
                 <div className=" bg-[#0081FE] p-4 inline-block rounded-[30px]">
-                    <Link className="px-4 text-amber-50" href="customer/aboutus"> Contact us</Link>
+                    <Link className="px-4 text-amber-50" href="/customer/contact"> Contact us</Link>
                 </div>
                 
             </div>
