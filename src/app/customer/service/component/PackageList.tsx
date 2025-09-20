@@ -1,45 +1,86 @@
-import React from 'react'
-import Link from 'next/link'
-import { getPackage } from '@/lib/api'
-import { Package } from '@/type/service'
+// components/PackageList.tsx
+import PackageCard from "./PackageCard";
+import { searchServicePackages } from "@/api/service/api";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-export default async function PackageList() {
-  let packages: Package[] = []
+type Props = {
+  page?: number; 
+  size?: number;
+};
 
-  try {
-    packages = await getPackage()
-  } catch{
-    return <p className="text-red-500">Failed to load packages</p>
-  }
+export default async function PackageList({ page = 1, size = 6 }: Props) {
+  const { content, totalPages, page: currentPage } = await searchServicePackages(
+    { page, size, sortBy: "createdAt", sortDir: "desc" }
+  );
 
   return (
-    <div className="">
-      <h2 className="text-lg font-semibold mb-4">Projects You Might Be Interested In</h2>
-      <div className="grid grid-cols-3 gap-10">
-        {packages.map((p) => (
-          <div key={p.id} className="card relative overflow-hidden border p-4 rounded-lg">
-            {/* <p className="text-sm py-1 px-2 bg-amber-200 inline-block absolute rounded-br-lg top-0 left-0 text-gray-500">{p.category}</p> */}
-            {/* <Image
-              src={p.image}
-              alt={p.title}
-              width={200}
-              height={200}
-              className="rounded-lg w-full"
-            /> */}
-            <p className="font-extrabold line-clamp-1 text-3xl">{p.name}</p>
-            <p className="text-gray-600 line-clamp-3">{p.description}</p>
-            <div className="flex justify-between text-xs font-bold mt-2">
-              <span>{p.providerId}</span>
-              <span>{p.createdAt}</span>
-            </div>
-            <div className="mt-3 bg-[#0081FE] p-2 text-center rounded-tl-[30px] rounded-bl-[10px] rounded-br-[30px] rounded-tr-[10px]">
-              <Link className=" text-amber-50 " href={`/customer/projects/${p.id}`}>
-                View Details
-              </Link>
-            </div>
-          </div>
+    <div className="space-y-6">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {content.map((p) => (
+          <PackageCard key={p.id} p={p} />
         ))}
       </div>
+      <div className="flex justify-center">
+        <Pagination>
+          <PaginationContent>
+            {/* Prev */}
+            <PaginationItem>
+              <PaginationPrevious
+                href={currentPage > 1 ? `?page=${currentPage - 1}&size=${size}` : "#"}
+                aria-disabled={currentPage === 1}
+              />
+            </PaginationItem>
+
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const n = i + 1;
+              const isEdge =
+                n <= 2 || n > totalPages - 2 || Math.abs(n - currentPage) <= 1;
+              if (!isEdge) {
+                // chỉ render một Ellipsis cho các khoảng trống
+                if (
+                  (n === 3 && currentPage > 4) ||
+                  (n === totalPages - 2 && currentPage < totalPages - 3)
+                ) {
+                  return (
+                    <PaginationItem key={`ellipsis-${n}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+                return null;
+              }
+              return (
+                <PaginationItem key={n}>
+                  <PaginationLink
+                    href={`?page=${n}&size=${size}`}
+                    isActive={n === currentPage}
+                  >
+                    {n}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+
+            {/* Next */}
+            <PaginationItem>
+              <PaginationNext
+                href={
+                  currentPage < totalPages ? `?page=${currentPage + 1}&size=${size}` : "#"
+                }
+                aria-disabled={currentPage === totalPages}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
-  )
+  );
 }
