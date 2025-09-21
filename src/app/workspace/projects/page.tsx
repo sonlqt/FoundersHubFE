@@ -1,10 +1,10 @@
 import React from 'react'
-import { Dashboard } from './components/Dashboard'
+import { Projects } from '../components/Projects'
 
 function page() {
   return (
     <div>
-      <Dashboard />
+      <Projects />
     </div>
   )
 }

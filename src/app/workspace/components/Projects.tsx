@@ -11,10 +11,9 @@ import {
   Clock
 } from 'lucide-react';
 import { Project } from '@/type/project';
+import Link from 'next/link';
 
-// ========================
-// Types from the API
-// ========================
+
 
 
 
@@ -160,6 +159,7 @@ export const Projects: React.FC = () => {
           </div>
         )}
 
+
         {/* Projects Grid */}
         {!loading && !error && (
           <>
@@ -171,81 +171,84 @@ export const Projects: React.FC = () => {
                     key={project.id}
                     className="bg-white border border-slate-200 rounded-lg p-6 hover:border-sky-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
                   >
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-slate-800 mb-2 group-hover:text-sky-600 transition-colors">
-                          {project.name}
-                        </h3>
-                        <span className={`${getStatusColor(statusLabel)} text-xs px-2 py-1 rounded-full`}>
-                          {statusLabel}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-slate-800">{project.progress}%</div>
-                        <div className="text-xs text-slate-500">Complete</div>
-                      </div>
-                    </div>
+                    <Link href={`/workspace/project/${project.id}`} className="block">
+                      {/* Header */}
 
-                    {/* Progress Bar */}
-                    <div className="w-full bg-slate-200 rounded-full h-2 mb-4">
-                      <div
-                        className="bg-sky-400 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-sm text-slate-600 mb-4 line-clamp-2">{project.description}</p>
-
-                    {/* Stats (adapted to API fields) */}
-                    <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-sky-50 rounded-lg">
-                      <div className="text-center">
-                        <div className="text-lg font-semibold text-slate-800">{project.teamSize}</div>
-                        <div className="text-xs text-slate-500">Team Size</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold text-slate-800">{formatDate(project.startDate)}</div>
-                        <div className="text-xs text-slate-500">Start</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold text-slate-800">{formatDate(project.endDate)}</div>
-                        <div className="text-xs text-slate-500">End</div>
-                      </div>
-                    </div>
-
-                    {/* Lead & Dates */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4 text-slate-500" />
-                          <span className="text-sm text-slate-600">Manager</span>
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-slate-800 mb-2 group-hover:text-sky-600 transition-colors">
+                            {project.name}
+                          </h3>
+                          <span className={`${getStatusColor(statusLabel)} text-xs px-2 py-1 rounded-full`}>
+                            {statusLabel}
+                          </span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4 text-slate-500" />
-                          <span className="text-sm text-slate-600">{formatDate(project.endDate)}</span>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-slate-800">{project.progress}%</div>
+                          <div className="text-xs text-slate-500">Complete</div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {project.managerId?.avatarUrl ? (
-                            <img
-                              src={project.managerId.avatarUrl}
-                              alt={project.managerId.fullName}
-                              className="w-6 h-6 rounded-full"
-                            />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-slate-200" />
-                          )}
-                          <span className="text-sm text-slate-700">{project.managerId?.fullName || '—'}</span>
+                      {/* Progress Bar */}
+                      <div className="w-full bg-slate-200 rounded-full h-2 mb-4">
+                        <div
+                          className="bg-sky-400 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${project.progress}%` }}
+                        />
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-sm text-slate-600 mb-4 line-clamp-2">{project.description}</p>
+
+                      {/* Stats (adapted to API fields) */}
+                      <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-sky-50 rounded-lg">
+                        <div className="text-center">
+                          <div className="text-lg font-semibold text-slate-800">{project.teamSize}</div>
+                          <div className="text-xs text-slate-500">Team Size</div>
                         </div>
-                        <div className="text-right text-xs text-slate-500">
-                          <div>{project.managerId?.email || ''}</div>
-                          <div>{project.managerId?.phone || ''}</div>
+                        <div className="text-center">
+                          <div className="text-lg font-semibold text-slate-800">{formatDate(project.startDate)}</div>
+                          <div className="text-xs text-slate-500">Start</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg font-semibold text-slate-800">{formatDate(project.endDate)}</div>
+                          <div className="text-xs text-slate-500">End</div>
                         </div>
                       </div>
-                    </div>
+
+                      {/* Lead & Dates */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Users className="w-4 h-4 text-slate-500" />
+                            <span className="text-sm text-slate-600">Manager</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4 text-slate-500" />
+                            <span className="text-sm text-slate-600">{formatDate(project.endDate)}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            {project.managerId?.avatarUrl ? (
+                              <img
+                                src={project.managerId.avatarUrl}
+                                alt={project.managerId.fullName}
+                                className="w-6 h-6 rounded-full"
+                              />
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-slate-200" />
+                            )}
+                            <span className="text-sm text-slate-700">{project.managerId?.fullName || '—'}</span>
+                          </div>
+                          <div className="text-right text-xs text-slate-500">
+                            <div>{project.managerId?.email || ''}</div>
+                            <div>{project.managerId?.phone || ''}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
                   </div>
                 );
               })}

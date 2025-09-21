@@ -1,80 +1,110 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import {
-    LayoutDashboard,
-    FolderOpen,
-    AlertCircle,
-    Kanban,
-    Calendar,
-    Users
+  LayoutDashboard,
+  FolderOpen,
+  AlertCircle,
+  Calendar,
+  HardDrive,
+  FileText,
+  SidebarClose,
+  Video
 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', key: 'dashboard' as const },
-    { icon: FolderOpen, label: 'Projects', key: 'projects' as const },
-    { icon: AlertCircle, label: 'Issues', key: 'issues' as const },
-    { icon: Kanban, label: 'Boards', key: 'boards' as const },
-    { icon: Calendar, label: 'Calendar', key: 'calendar' as const },
+  { icon: LayoutDashboard, label: 'Dashboard', key: 'dashboard' as const },
+  { icon: FolderOpen, label: 'Projects', key: 'projects' as const },
+  { icon: AlertCircle, label: 'Issues', key: 'issues' as const },
+  // { icon: Calendar, label: 'Calendar', key: 'calendar' as const },
+  { icon: Video, label: 'Meetings', key: 'meetings' as const },   // ✅ mới
+  // { icon: HardDrive, label: 'Storage', key: 'storage' as const },
+  { icon: FileText, label: 'Documents', key: 'documents' as const },
 ];
 
 interface SidebarProps {
-    activeSection: 'dashboard' | 'projects' | 'issues' | 'boards' | 'calendar';
-    onSectionChange: (section: 'dashboard' | 'projects' | 'issues' | 'boards' | 'calendar') => void;
+  activeSection:
+    | 'dashboard'
+    | 'projects'
+    | 'issues'
+    // | 'calendar'
+    | 'meetings'
+    // | 'storage'
+    | 'documents';
+  onSectionChange: (
+    section:
+      | 'dashboard'
+      | 'projects'
+      | 'issues'
+      // | 'calendar'
+      | 'meetings'
+      // | 'storage'
+      | 'documents'
+  ) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange }) => {
-    return (
-        <div className="w-50 bg-white border-r border-slate-200 flex flex-col h-screen">
-            {/* Logo */}
-            <div className="flex items-center m-6">
-                <Image src="/globe.svg" alt="Avatar" width={20} height={20} className="rounded-full mr-3" />
-                <p className="font-bold text-sm text-slate-700">FoundersHub</p>
-            </div>
+export const Sidebar = ({ activeSection, onSectionChange }: SidebarProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-            {/* Navigation */}
-            <nav className="flex-1 p-4">
-                <div className="space-y-2">
-                    {menuItems.map((item) => (
-                        <button
-                            key={item.label}
-                            onClick={() => onSectionChange(item.key)}
-                            className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors w-full text-left
-                                ${activeSection === item.key
-                                    ? 'bg-sky-300 text-slate-700'
-                                    : 'text-slate-600 hover:text-sky-700 hover:bg-sky-50'
-                                }`}
-                        >
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{item.label}</span>
-                        </button>
-                    ))}
-                </div>
-
-                {/* Teams Section (nếu cần bật lại thì thay màu tương tự pastel)
-                <div className="mt-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-                            Teams
-                        </h3>
-                        <button className="text-slate-500 hover:text-sky-600">
-                            <Users className="w-4 h-4" />
-                        </button>
-                    </div>
-                    <div className="space-y-1">
-                        {teams.map((team) => (
-                            <div
-                                key={team.id}
-                                className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-sky-50 cursor-pointer transition-colors"
-                            >
-                                <div className={`w-3 h-3 rounded-full ${team.color}`} />
-                                <span className="text-slate-600 hover:text-sky-700 text-sm font-medium">
-                                    {team.name}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </div> */}
-            </nav>
+  return (
+    <div
+      className={`bg-white border-r border-slate-200 flex flex-col h-screen transition-all duration-300 
+      ${isCollapsed ? 'w-16' : 'w-52'}`}
+    >
+      {/* Logo + Toggle */}
+      <div className="flex items-center justify-between m-4">
+        {/* Logo */}
+        <div
+          className="flex items-center gap-2 cursor-pointer rounded px-2 py-1
+             hover:bg-slate-200 hover:text-slate-900 transition-colors"
+          onClick={() => {
+            if (isCollapsed) setIsCollapsed(false);
+          }}
+        >
+          <Image
+            src="/globe.svg"
+            alt="Avatar"
+            width={20}
+            height={20}
+            className="flex-shrink-0"
+          />
+          {!isCollapsed && (
+            <p className="font-bold text-sm text-slate-700">FoundersHub</p>
+          )}
         </div>
-    );
+
+        {/* Button toggle */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-1 rounded hover:bg-slate-100"
+        >
+          {isCollapsed ? <SidebarClose size={0} /> : <SidebarClose size={18} />}
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 p-2">
+        <div className="space-y-1">
+          {menuItems.map((item) => (
+            <Link
+              href={`/workspace/${item.key}`}
+              key={item.label}
+              onClick={() => onSectionChange(item.key)}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors w-full
+                ${
+                  activeSection === item.key
+                    ? 'bg-sky-300 text-slate-700'
+                    : 'text-slate-600 hover:text-sky-700 hover:bg-sky-50'
+                }`}
+            >
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {!isCollapsed && <span className="font-medium">{item.label}</span>}
+            </Link>
+          ))}
+        </div>
+      </nav>
+    </div>
+  );
 };

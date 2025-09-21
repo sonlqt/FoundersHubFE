@@ -1,10 +1,10 @@
 import React from 'react'
-import { Dashboard } from './components/Dashboard'
+import { Issues } from '../components/Issues'
 
 function page() {
   return (
     <div>
-      <Dashboard />
+      <Issues />
     </div>
   )
 }

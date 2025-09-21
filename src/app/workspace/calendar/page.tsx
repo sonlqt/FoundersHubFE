@@ -1,10 +1,10 @@
 import React from 'react'
-import { Dashboard } from './components/Dashboard'
+import { Calendar } from '../components/Calendar'
 
 function page() {
   return (
     <div>
-      <Dashboard />
+      <Calendar />
     </div>
   )
 }

@@ -20,10 +20,7 @@ export const TopBar: React.FC = () => {
         {/* Right side */}
         <div className="flex items-center space-x-4">
           {/* Action buttons */}
-          <button className="bg-sky-400 hover:bg-sky-500 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors">
-            <Plus className="w-4 h-4" />
-            <span>Create task</span>
-          </button>
+        
           
           <button className="bg-emerald-100 hover:bg-emerald-200 text-slate-700 px-4 py-2 rounded-lg font-medium text-sm flex items-center space-x-2 transition-colors">
             <UserPlus className="w-4 h-4" />
