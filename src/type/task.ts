@@ -11,10 +11,10 @@ export interface Task {
     endDate: string | null;
     progress: number | null;
   };
-  name: string; // chính là title của task
+  name: string;
   description: string;
-  status: string; // "To Do", "In Progress", "Review", "Done", "Cancelled"...
-  priority: "low" | "medium" | "high";
-  dueDate: string; // deadline
+  status: string;
+  priority: "low" | "medium" | "high" | "Low" | "Medium" | "High" | "Emergency";
+  dueDate: string;
   createdBy: User;
 }

@@ -11,8 +11,10 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
   closestCenter,
   useDroppable,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   useSortable,
@@ -20,7 +22,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { TaskDetailModal } from './TaskDetail';
+import { TaskDetail } from './TaskDetail';
 
 const columns = [
   { id: 'To Do', label: 'To Do', color: 'border-slate-300' },
@@ -38,51 +40,41 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentColumn, setCurrentColumn] = useState<string | null>(null);
 
-  // 🆕 state mở TaskDetail
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null); // task đang kéo
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
 
-  // 🧠 Fetch task list khi load
+  // Fetch task list khi load
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const token = localStorage.getItem('token');
         const response = await fetch(
           `https://foundershub.nducky.id.vn/api/${id}/tasks`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            credentials: 'include',
           }
         );
 
-        if (!response.ok) {
-          const text = await response.text();
-          // console.error('Server error:', response.status, text);
-          return;
-        }
+        if (!response.ok) return;
 
         const text = await response.text();
-        if (!text) {
-          console.error('Empty response body');
-          return;
-        }
+        if (!text) return;
 
         let json;
         try {
           json = JSON.parse(text);
-        } catch (err) {
-          console.error('Invalid JSON:', text);
+        } catch {
           return;
         }
 
         if (json.code === 200) {
-          setTasks(json.data);
-        } else {
-          console.error('API Error:', json.message);
+          const apiTasks = Array.isArray(json.data)
+            ? json.data
+            : (json.data?.tasks ?? []);
+          setTasks(apiTasks);
         }
       } catch (err) {
         console.error('Failed to fetch tasks:', err);
@@ -93,12 +85,19 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
   }, [id]);
 
   const taskById = React.useMemo(
-    () => new Map(tasks.map((t) => [t.id, t])),
+    () => new Map((tasks ?? []).map((t) => [t.id, t])),
     [tasks]
   );
 
+  const handleDragStart = (e: DragStartEvent) => {
+    const task = taskById.get(e.active.id as string);
+    if (task) setActiveTask(task);
+  };
+
   const handleDragEnd = async (e: DragEndEvent) => {
     const { active, over } = e;
+    setActiveTask(null);
+
     if (!over) return;
 
     const activeId = active.id as string;
@@ -115,16 +114,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
         );
 
         try {
-          const token = localStorage.getItem('token');
           await fetch(
             `https://foundershub.nducky.id.vn/api/${id}/tasks/${activeId}`,
             {
               method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ status: overId }),
+              credentials: 'include',
             }
           );
         } catch (err) {
@@ -135,8 +131,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
     }
 
     const overTask = taskById.get(overId);
-    const activeTask = taskById.get(activeId);
-    if (overTask && activeTask && overTask.status !== activeTask.status) {
+    const activeTaskData = taskById.get(activeId);
+    if (overTask && activeTaskData && overTask.status !== activeTaskData.status) {
       setTasks((prev) =>
         prev.map((task) =>
           task.id === activeId ? { ...task, status: overTask.status } : task
@@ -144,16 +140,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
       );
 
       try {
-        const token = localStorage.getItem('token');
         await fetch(
           `https://foundershub.nducky.id.vn/api/${id}/tasks/${activeId}`,
           {
             method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: overTask.status }),
+            credentials: 'include',
           }
         );
       } catch (err) {
@@ -162,7 +155,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
     }
   };
 
-  // 🆕 Handle add task từ modal
   const statusMap: Record<string, string> = {
     'To Do': 'To Do',
     'In Progress': 'In Progress',
@@ -173,27 +165,20 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
   const handleAddTask = async (taskData: any) => {
     if (!currentColumn) return;
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(
         `https://foundershub.nducky.id.vn/api/${id}/tasks`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...taskData,
             status: statusMap[currentColumn],
           }),
+          credentials: 'include',
         }
       );
 
-      if (!res.ok) {
-        const text = await res.text();
-        console.error('Failed to create task:', res.status, text);
-        return;
-      }
+      if (!res.ok) return;
 
       const json = await res.json();
       const apiTask = (json?.data || json) as Partial<Task>;
@@ -211,16 +196,39 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
     }
   };
 
+  const handleSelectTask = async (task: Task) => {
+    let project = task.projectId;
+
+    if (typeof project === 'string') {
+      try {
+        const res = await fetch(
+          `https://foundershub.nducky.id.vn/api/projects/${project}`,
+          { credentials: 'include' }
+        );
+        if (res.ok) {
+          const json = await res.json();
+          project = json.data;
+        }
+      } catch (err) {
+        console.error('Failed to fetch project:', err);
+      }
+    }
+
+    setSelectedTask({ ...task, projectId: project });
+  };
+
   return (
     <div className="flex-1 p-6">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveTask(null)}
       >
         <div className="grid grid-cols-4 gap-6 h-full">
           {columns.map((column) => {
-            const columnTasks = tasks.filter(
+            const columnTasks = (tasks ?? []).filter(
               (task) => task.status === column.id
             );
 
@@ -255,12 +263,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
                     items={columnTasks.map((t) => t.id)}
                     strategy={verticalListSortingStrategy}
                   >
-                    <div className="flex-1 bg-white rounded-b-lg p-4 space-y-3 min-h-96 scrollbar-thin overflow-y-auto border border-t-0 border-slate-200">
+                    <div className="flex-1 bg-white rounded-b-lg p-4 space-y-3 min-h-screen border border-t-0 border-slate-200 overflow-hidden">
                       {columnTasks.map((task) => (
                         <SortableTask
                           key={task.id}
                           task={task}
-                          onClick={() => setSelectedTask(task)} // 🆕 mở modal
+                          onClick={() => handleSelectTask(task)}
                         />
                       ))}
                       {columnTasks.length === 0 && (
@@ -275,9 +283,17 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
             );
           })}
         </div>
+
+        {/* DragOverlay để khối đi theo chuột */}
+        <DragOverlay>
+          {activeTask ? (
+            <div className="shadow-lg rounded-lg bg-white">
+              <TaskCard task={activeTask} onClick={() => {}} />
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
 
-      {/* 🆕 Modal Add Task */}
       <AddTaskModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -285,12 +301,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ id }) => {
         columnId={currentColumn ?? ''}
       />
 
-      {/* 🆕 Modal Task Detail */}
       {selectedTask && (
-        <TaskDetailModal
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-        />
+        <TaskDetail task={selectedTask} onClose={() => setSelectedTask(null)} />
       )}
     </div>
   );
@@ -320,12 +332,22 @@ const SortableTask: React.FC<{ task: Task; onClick: () => void }> = ({
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.6 : 1,
+    transition: transition || 'transform 200ms cubic-bezier(0.2, 0, 0, 1)',
+    opacity: isDragging ? 0.5 : 1,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    borderRadius: '0.5rem',
+    zIndex: isDragging ? 50 : 'auto',
+    background: 'white',
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={onClick}
+    >
       <TaskCard task={task} onClick={onClick} />
     </div>
   );

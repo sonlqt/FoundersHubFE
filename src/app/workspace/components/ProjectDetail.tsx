@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Edit3, Download, Mail, Phone } from 'lucide-react';
+import { Edit3, Download, Mail, Phone, Calendar, Clock, Users } from 'lucide-react';
 import { Project } from '@/type/project';
 
 interface ProjectDetailProps {
@@ -96,16 +96,42 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ id }) => {
           )}
 
           {/* Timeline */}
-          <div className="flex-wrap items-center gap-6 text-sm">
-            <div>
-              <span className="text-gray-500 text-xs">Start:</span>{' '}
-              <span className="font-semibold">{project.startDate}</span>
+          <div className="flex flex-wrap items-center gap-8 text-sm mt-4">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-gray-400" />
+              <div className="flex flex-col">
+                <span className="text-gray-500 text-xs uppercase tracking-wide">Team</span>
+                <span className="font-semibold text-slate-800">{project.teamSize ?? "-"}</span>
+              </div>
             </div>
-            <div>
-              <span className="text-gray-500 text-xs">End:</span>{' '}
-              <span className="font-semibold">{project.endDate}</span>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-400" />
+              <div className="flex flex-col">
+                <span className="text-gray-500 text-xs uppercase tracking-wide">Start</span>
+                <span className="font-semibold text-slate-800">
+                  {project.startDate ? new Date(project.startDate).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  }) : "-"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-gray-400" />
+              <div className="flex flex-col">
+                <span className="text-gray-500 text-xs uppercase tracking-wide">End</span>
+                <span className="font-semibold text-slate-800">
+                  {project.endDate ? new Date(project.endDate).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  }) : "-"}
+                </span>
+              </div>
             </div>
           </div>
+
 
           {/* Actions */}
           <div className="flex gap-2">

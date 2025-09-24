@@ -7,18 +7,11 @@ import {
   Calendar,
   Users,
   Target,
-  TrendingUp,
   Clock
 } from 'lucide-react';
 import { Project } from '@/type/project';
 import Link from 'next/link';
-
-
-
-
-
-
-
+import { AddProjectModal } from '@/app/workspace/components/AddProjectModal'; // 👉 import modal
 
 const API_URL = 'https://foundershub.nducky.id.vn/api/projects';
 
@@ -37,9 +30,7 @@ const deriveStatusLabel = (p: Project) => {
   const now = new Date();
   const isPastEnd = p.endDate ? new Date(p.endDate) < now : false;
   if (p.progress >= 100 || isPastEnd) return 'Completed' as const;
-
   if (String(p.status).toLowerCase() === 'active') return 'Active' as const;
-
   return 'On Hold' as const;
 };
 
@@ -64,27 +55,26 @@ export const Projects: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'On Hold' | 'Completed'>('All');
 
+  // 👉 quản lý modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(API_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const data: Project[] = Array.isArray(json?.data) ? json.data : [];
+      setProjects(data);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load projects');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let mounted = true;
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(API_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        // Expecting shape: { code, message, data: ApiProject[] }
-        const data: Project[] = Array.isArray(json?.data) ? json.data : [];
-        if (mounted) setProjects(data);
-      } catch (e: any) {
-        if (mounted) setError(e?.message || 'Failed to load projects');
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
     fetchData();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const filteredProjects = useMemo(() => {
@@ -108,7 +98,10 @@ export const Projects: React.FC = () => {
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Projects</h1>
             <p className="text-slate-600">Manage and track all your projects in one place.</p>
           </div>
-          <button className="bg-sky-400 hover:bg-sky-500 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-sky-400 hover:bg-sky-500 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+          >
             <Plus className="w-4 h-4" />
             <span>New Project</span>
           </button>
@@ -159,7 +152,6 @@ export const Projects: React.FC = () => {
           </div>
         )}
 
-
         {/* Projects Grid */}
         {!loading && !error && (
           <>
@@ -173,7 +165,6 @@ export const Projects: React.FC = () => {
                   >
                     <Link href={`/workspace/project/${project.id}`} className="block">
                       {/* Header */}
-
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-slate-800 mb-2 group-hover:text-sky-600 transition-colors">
@@ -200,7 +191,7 @@ export const Projects: React.FC = () => {
                       {/* Description */}
                       <p className="text-sm text-slate-600 mb-4 line-clamp-2">{project.description}</p>
 
-                      {/* Stats (adapted to API fields) */}
+                      {/* Stats */}
                       <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-sky-50 rounded-lg">
                         <div className="text-center">
                           <div className="text-lg font-semibold text-slate-800">{project.teamSize}</div>
@@ -263,6 +254,13 @@ export const Projects: React.FC = () => {
             )}
           </>
         )}
+
+        {/* 👉 Modal Add Project */}
+        <AddProjectModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={fetchData}
+        />
       </div>
     </div>
   );
