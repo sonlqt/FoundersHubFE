@@ -1,10 +1,11 @@
 import React from 'react'
-import Documents from '../components/Documents'
+import Roadmap from '@/app/customer/roadmap/components/Roadmap'
+
 
 function page() {
   return (
     <div>
-      <Documents />
+      <Roadmap/>
     </div>
   )
 }

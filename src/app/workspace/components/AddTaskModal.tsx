@@ -38,36 +38,43 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-                <h2 className="text-lg font-semibold mb-4">
-                    Add Task ({columnId})
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-60">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl animate-fadeIn">
+                {/* Header */}
+                <h2 className="text-xl font-bold mb-5 text-gray-800 border-b pb-3">
+                    Add Task <span className="text-blue-600">{columnId}</span>
                 </h2>
-                <form onSubmit={handleSubmit} className="space-y-3">
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium">Task Name</label>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">Task Name</label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full border rounded px-2 py-1"
+                            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            placeholder="Enter task name..."
                             required
                         />
                     </div>
+
                     <div>
-                        <label className="block text-sm font-medium">Description</label>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">Description</label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="w-full border rounded px-2 py-1"
+                            className="w-full border rounded-lg px-3 py-2 h-20 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            placeholder="Add some details..."
                         />
                     </div>
+
                     <div>
-                        <label className="block text-sm font-medium">Priority</label>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">Priority</label>
                         <select
                             value={priority}
                             onChange={(e) => setPriority(e.target.value)}
-                            className="w-full border rounded px-2 py-1"
+                            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -75,28 +82,31 @@ export const AddTaskModal: React.FC<AddTaskModalProps> = ({
                             <option value="Emergency">Emergency</option>
                         </select>
                     </div>
+
                     <div>
-                        <label className="block text-sm font-medium">Due Date</label>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">Due Date</label>
                         <input
                             type="date"
                             value={dueDate}
                             onChange={(e) => setDueDate(e.target.value)}
-                            className="w-full border rounded px-2 py-1"
+                            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         />
                     </div>
-                    <div className="flex justify-end gap-2 mt-4">
+
+                    {/* Buttons */}
+                    <div className="flex justify-end gap-3 pt-4 border-t">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                            className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 transition"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition shadow-sm"
                         >
-                            Add
+                            Add Task
                         </button>
                     </div>
                 </form>
