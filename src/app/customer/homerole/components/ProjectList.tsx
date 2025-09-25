@@ -9,7 +9,7 @@ export default async function ProjectList() {
 
   try {
     projects = await getProjects()
-  } catch (error) {
+  } catch {
     return <p className="text-red-500">Failed to load projects</p>
   }
 
