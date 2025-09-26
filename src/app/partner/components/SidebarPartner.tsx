@@ -9,6 +9,7 @@ import {
   Calendar,
   User,
 } from "lucide-react";
+import Image from "next/image";   
 
 const navItems = [
   { name: "Dashboard Overview", path: "/partner/dashboard", icon: LayoutDashboard },
@@ -24,7 +25,14 @@ export default function SidebarPartner() {
     <aside className="w-64 h-screen border-r bg-white flex flex-col justify-between">
       {/* Top Logo + Nav */}
       <div>
-        <div className="px-6 py-4 text-xl font-bold text-purple-800 flex items-center space-x-2">
+        <div className="px-6 py-4 text-xl font-bold text-emerald-600 flex items-center space-x-2">
+          <Image
+            src="/logo.png"
+            alt="FoundersHub Logo"
+            width={28}
+            height={28}
+            className="w-7 h-7"
+          />
           <span>FoundersHub</span>
         </div>
         <nav className="mt-6 flex flex-col space-y-1">
@@ -37,7 +45,7 @@ export default function SidebarPartner() {
                 <span
                   className={`flex items-center gap-3 px-6 py-3 text-sm cursor-pointer rounded-r-full transition-colors ${
                     active
-                      ? "bg-purple-100 text-purple-700 font-medium"
+                      ? "bg-emerald-100 text-emerald-700 font-medium"
                       : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
