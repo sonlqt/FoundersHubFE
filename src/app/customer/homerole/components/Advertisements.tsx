@@ -10,8 +10,6 @@ import {
     Carousel,
     CarouselContent,
     CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
 } from "@/components/ui/carousel"
 
 export default function Advertisements() {
@@ -23,7 +21,7 @@ export default function Advertisements() {
                     plugins={[
                         Autoplay({ delay: 2000, stopOnInteraction: true })
                     ]}
-                    className="w-full max-w-xs"
+                    className="w-full"
                 >
                     <CarouselContent>
                         {brand.images.map((img, index) => (

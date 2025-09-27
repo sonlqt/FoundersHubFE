@@ -9,7 +9,7 @@ export default function Homepage() {
         <div>
             <HeroSection />
             <FilterSearch />
-            <div className="grid grid-cols-6 px-10  gap-10">
+            <div className="grid grid-cols-6 px-20 gap-10">
                <div className="col col-span-4">
                  <ProjectList />
                </div>

@@ -1,4 +1,4 @@
-import { SearchResponse } from "./type";
+import { SearchResponse, ServicePackage } from "./type";
 
 
 export type SearchParams = {
@@ -29,4 +29,14 @@ export async function searchServicePackages({
   }
   const json = (await res.json()) as SearchResponse;
   return json.data;
+}
+
+
+export async function fetchServicePackageById(id: string): Promise<ServicePackage> {
+  const res = await fetch(`https://foundershub.nducky.id.vn/api/service-packages/${id}`, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch package ${id}`);
+  }
+  const json = await res.json(); // { code, message, data }
+  return json.data as ServicePackage;
 }

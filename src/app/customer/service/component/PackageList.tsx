@@ -23,12 +23,15 @@ export default async function PackageList({ page = 1, size = 6 }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div>
+        <p className="font-extrabold text-2xl text-center">Our Curated Service Packages</p>
+      </div>
+      <div className="grid gap-x-25 gap-y-15 sm:grid-cols-2 lg:grid-cols-3 my-10">
         {content.map((p) => (
           <PackageCard key={p.id} p={p} />
         ))}
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-10">
         <Pagination>
           <PaginationContent>
             {/* Prev */}
@@ -44,7 +47,6 @@ export default async function PackageList({ page = 1, size = 6 }: Props) {
               const isEdge =
                 n <= 2 || n > totalPages - 2 || Math.abs(n - currentPage) <= 1;
               if (!isEdge) {
-                // chỉ render một Ellipsis cho các khoảng trống
                 if (
                   (n === 3 && currentPage > 4) ||
                   (n === totalPages - 2 && currentPage < totalPages - 3)
