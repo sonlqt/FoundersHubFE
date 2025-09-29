@@ -65,7 +65,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
         setComments(data.data || []);
       } catch (err) {
         console.error("Failed to fetch comments", err);
-      }
+       }
     };
 
     fetchComments();
