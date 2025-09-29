@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   X,
   MessageCircle,
@@ -8,12 +8,21 @@ import {
 } from 'lucide-react';
 import { Task } from '@/type/task';
 
+// 🔹 Comment response từ BE
+interface TaskComment {
+  id: string;
+  userId: string;
+  userName: string;
+  avatarUrl: string;
+  content: string;
+  createdAt: string;
+}
+
 interface TaskDetailProps {
   task: Task | null;
   onClose: () => void;
 }
 
-// Status colors
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'To Do': return 'bg-slate-200 text-slate-700';
@@ -25,7 +34,6 @@ const getStatusColor = (status: string) => {
   }
 };
 
-// Priority colors (fix Medium, Emergency …)
 const getPriorityColor = (priority: string) => {
   const p = priority?.toLowerCase?.() || '';
   switch (p) {
@@ -37,28 +45,54 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
-// Mock comments
-const mockComments = [
-  {
-    id: 1,
-    user: "Alice Johnson",
-    avatar: "https://i.pravatar.cc/40?img=1",
-    text: "Hey team, I think we should adjust the deadline for this task.",
-    createdAt: "2025-09-20T10:30:00Z"
-  },
-  {
-    id: 2,
-    user: "Alice Johnson",
-    avatar: "https://i.pravatar.cc/40?img=1",
-    text: "Hey team, I think we should adjust the deadline for this task.",
-    createdAt: "2025-09-20T10:30:00Z"
-  }
-];
-
 export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
+  const [comments, setComments] = useState<TaskComment[]>([]);
+  const [newComment, setNewComment] = useState('');
+
   if (!task) return null;
 
-  const project = typeof task.projectId === "object" ? task.projectId : null;
+  // 🔹 Load comments khi mở task
+  useEffect(() => {
+    if (!task) return;
+
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`https://foundershub.nducky.id.vn/api/${task.id}/comments`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        const data = await res.json();
+        setComments(data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch comments", err);
+      }
+    };
+
+    fetchComments();
+  }, [task]);
+
+  // 🔹 Gửi comment mới
+  const handleSendComment = async () => {
+    if (!newComment.trim()) return;
+
+    try {
+      const res = await fetch(`https://foundershub.nducky.id.vn/api/${task.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ content: newComment }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setComments((prev) => [...prev, data.data]);
+        setNewComment('');
+      }
+    } catch (err) {
+      console.error("Failed to send comment", err);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
@@ -74,7 +108,6 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
           </button>
         </div>
 
-        {/* Content */}
         <div className="flex flex-1 overflow-hidden">
           {/* Left */}
           <div className="flex-1 overflow-y-auto">
@@ -100,14 +133,6 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                   </span>
                 </div>
               </div>
-              {/* <div className="col-span-2">
-                <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">
-                  Project
-                </label>
-                <p className="text-sm text-slate-700 mt-1">
-                  {project?.name}
-                </p>
-              </div> */}
             </div>
 
             <div className="p-5 border-b border-slate-200">
@@ -117,7 +142,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
               </p>
             </div>
 
-            {/* ✅ Created By (có fallback) */}
+            {/* Created By */}
             <div className="p-5 border-b border-slate-200">
               <h3 className="text-sm font-medium text-slate-600 mb-2">Created By</h3>
               <div className="flex items-center gap-2">
@@ -133,7 +158,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
             </div>
           </div>
 
-          {/* Right */}
+          {/* Right - Comments */}
           <div className="w-[340px] border-l border-slate-200 flex flex-col">
             <div className="p-5 border-b border-slate-200">
               <h3 className="text-sm font-semibold text-slate-700 flex items-center">
@@ -143,22 +168,30 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4">
-              {mockComments.map((c) => (
+              {comments.map((c) => (
                 <div key={c.id} className="flex items-start gap-3">
-                  <img src={c.avatar} alt={c.user} className="w-8 h-8 rounded-full" />
+                  <img
+                    src={c.avatarUrl ?? "/default-avatar.png"}
+                    alt={c.userName}
+                    className="w-8 h-8 rounded-full"
+                  />
                   <div className="flex-1 bg-slate-100 rounded-lg px-3 py-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-slate-800 text-sm">{c.user}</span>
+                      <span className="font-medium text-slate-800 text-sm">{c.userName}</span>
                       <span className="text-xs text-slate-500">
                         {new Date(c.createdAt).toLocaleString("en-US")}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-700 mt-1">{c.text}</p>
+                    <p className="text-sm text-slate-700 mt-1">{c.content}</p>
                   </div>
                 </div>
               ))}
+              {comments.length === 0 && (
+                <p className="text-sm text-slate-500 text-center">No comments yet</p>
+              )}
             </div>
 
+            {/* Add comment */}
             <div className="p-4 border-t border-slate-200">
               <div className="flex gap-3">
                 <img
@@ -168,12 +201,17 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task, onClose }) => {
                 />
                 <div className="flex-1">
                   <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Add a comment..."
                     className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700"
                     rows={2}
                   />
                   <div className="flex justify-end mt-2">
-                    <button className="bg-sky-500 hover:bg-sky-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1">
+                    <button
+                      onClick={handleSendComment}
+                      className="bg-sky-500 hover:bg-sky-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+                    >
                       <Send className="w-3 h-3" />
                       <span>Send</span>
                     </button>
