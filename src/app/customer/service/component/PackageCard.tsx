@@ -10,7 +10,7 @@ export default function PackageCard({ p }: { p: ServicePackage }) {
   return (
     <div className="relative flex flex-col rounded-2xl border p-4 shadow-sm hover:shadow-md transition">
       <div className="mb-3 aspect-[16/9] w-full overflow-hidden rounded-xl bg-gray-100">
-        {/* <Image
+        <Image
           src={p.image}
           alt={p.name}
           width={400}
@@ -18,7 +18,7 @@ export default function PackageCard({ p }: { p: ServicePackage }) {
           className="h-full w-full object-cover object-center"
         >
 
-        </Image> */}
+        </Image>
       </div>
 
       <div className="mb-1 text-xs text-gray-500">
@@ -51,7 +51,7 @@ export default function PackageCard({ p }: { p: ServicePackage }) {
 
 
       <div className="mt-3 border-t pt-3 text-lg text-center font-bold">
-        {p.price} {p.currency}/service
+        {p.price} /service
       </div>
 
       <div className="mt-3">
