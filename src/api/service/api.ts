@@ -40,3 +40,4 @@ export async function fetchServicePackageById(id: string): Promise<ServicePackag
   const json = await res.json(); // { code, message, data }
   return json.data as ServicePackage;
 }
+

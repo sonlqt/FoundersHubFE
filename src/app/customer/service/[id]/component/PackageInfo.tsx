@@ -1,6 +1,7 @@
 import { ServicePackage } from "@/api/service/type";
 import { BriefcaseBusiness, CalendarDays, CircleCheckBig } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function PackageInfo({ pkg }: { pkg: ServicePackage }) {
     return (
@@ -67,25 +68,47 @@ export default function PackageInfo({ pkg }: { pkg: ServicePackage }) {
                             <li key={i} className="flex items-start gap-2">
                                 <span className="mt-0.5 text-blue-500"><CalendarDays /></span>
                                 <span>{d}</span>
-                                </li>
+                            </li>
                         ))}
                     </ul>
                 </div>
             </section>
 
             {/* Pricing */}
-            <section className="bg-gray-50 border rounded-lg p-6 space-y-3">
-                <h2 className="text-xl font-bold">Pricing and Next Step</h2>
-                <div className="space-y-2">
-                    <p className="font-medium text-blue-600 text-xl">
-                        {pkg.price.toLocaleString()} VND{" "}
-                        {pkg.discountPercent > 0 && (
-                            <span className="ml-2 text-green-600">-{pkg.discountPercent}%</span>
-                        )}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                        Duration: {pkg.durationMonths} months
-                    </p>
+            <section className="bg-gray-50 border rounded-lg p-6 space-y-4">
+                <h2 className="text-xl font-bold mb-2">Pricing & Next Step</h2>
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    {/* Price */}
+                    <div className="flex flex-col items-start">
+                        <div className="flex items-center gap-2">
+                            {pkg.discountPercent > 0 ? (
+                                <>
+                                    <span className="line-through text-gray-400 text-lg">
+                                        {pkg.price.toLocaleString()} $
+                                    </span>
+                                    <span className="text-2xl font-bold text-blue-600">
+                                        {(pkg.price * (1 - pkg.discountPercent / 100)).toLocaleString()} $
+                                    </span>
+                                    <span className="ml-2 text-green-600 font-semibold">
+                                        -{pkg.discountPercent}%
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="text-2xl font-bold text-blue-600">
+                                    {pkg.price.toLocaleString()} $
+                                </span>
+                            )}
+                        </div>
+                        <span className="text-sm text-gray-600 mt-1">
+                            Duration: <span className="font-medium">{pkg.durationMonths} months</span>
+                        </span>
+                    </div>
+                    <Link
+                        href={`/customer/service/order?servicePackageId=${pkg.id}`}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition text-center"
+                    >
+                        Buy Now
+                    </Link>
                 </div>
             </section>
 

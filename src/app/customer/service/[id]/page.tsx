@@ -3,7 +3,8 @@ import PackageInfo from "@/app/customer/service/[id]/component/PackageInfo";
 
 
 export default async function PackageDetailPage({ params }: { params: { id: string } }) {
-  const pkg = await fetchServicePackageById(params.id);
+    const { id } = await params;
+  const pkg = await fetchServicePackageById(id);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">

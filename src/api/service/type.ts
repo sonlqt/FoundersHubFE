@@ -2,15 +2,15 @@ import { Provider } from "@/api/provider/type";
 
 export type ServicePackage = {
   id: string;
-  providerId: Provider;   // object Provider
+  providerId: Provider;
   name: string;
   description: string;
-  price: number;          // giá (API không trả về currency, nên bỏ)
+  price: number;          
   durationMonths: number;
   discountPercent: number;
   features: string[];
-  serviceScope: string[];        // thêm từ API
-  estimatedDelivery: string[];   // thêm từ API
+  serviceScope: string[];        
+  estimatedDelivery: string[];  
   image: string;
   status: "active" | "inactive" | string;
 };
